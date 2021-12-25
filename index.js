@@ -2,6 +2,18 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+
+const url = `mongodb+srv://fullstack:test123@cluster0.mdhmr.mongodb.net/phonebook-database?retryWrites=true&w=majority`
+
+mongoose.connect(url)
+
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: String,
+})
+
+const Note = mongoose.model('Person', personSchema)
 
 const app = express()
 
@@ -40,7 +52,9 @@ let persons = [
 
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 app.get('/info', (request, response) => {
