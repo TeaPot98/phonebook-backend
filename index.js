@@ -13,7 +13,7 @@ const personSchema = new mongoose.Schema({
     number: String,
 })
 
-const Note = mongoose.model('Person', personSchema)
+const Person = mongoose.model('Person', personSchema)
 
 const app = express()
 
