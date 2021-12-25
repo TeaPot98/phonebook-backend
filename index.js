@@ -1,19 +1,14 @@
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 const mongoose = require('mongoose')
+const Person = require('./models/person')
 
 const url = `mongodb+srv://fullstack:test123@cluster0.mdhmr.mongodb.net/phonebook-database?retryWrites=true&w=majority`
 
 mongoose.connect(url)
-
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
-
-const Person = mongoose.model('Person', personSchema)
 
 const app = express()
 
@@ -67,15 +62,9 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(p => p.id === id)
-
-    if (person) {
+    Person.findById(request.params.id).then(person => {
         response.json(person)
-    } else {
-        response.status(404).end()
-    }
-    
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -97,21 +86,22 @@ app.post('/api/persons', jsonParser, (request, response) => {
         })
     }
     
-    if (persons.find(p => p.name === body.name)) {
-        return response.status(400).json({
-            error: 'name must be unique'
-        })
-    }
+    // if (persons.find(p => p.name === body.name)) {
+    //     return response.status(400).json({
+    //         error: 'name must be unique'
+    //     })
+    // }
     
-    const person = {
+    const person = new Person({
         id: generateId(),
         name: body.name,
         number: body.number
-    }
+    })
     
-    persons = persons.concat(person)
-
-    response.json(person)
+    // persons = persons.concat(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
 
