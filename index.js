@@ -84,7 +84,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 const generateId = () =>  Math.floor(Math.random() * 1000000)
 
 
-app.post('/api/persons', jsonParser, (request, response) => {
+app.post('/api/persons', jsonParser, (request, response, next) => {
     const body = request.body
 
     if (!body.name || !body.number) {
@@ -108,6 +108,9 @@ app.post('/api/persons', jsonParser, (request, response) => {
     // persons = persons.concat(person)
     person.save().then(savedPerson => {
         response.json(savedPerson)
+    })
+    .catch(error => {
+        next(error)
     })
 })
 
@@ -141,9 +144,10 @@ const errorHandler = (error, request, response, next) => {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
         return response.status(400).send({error: error.message})
-    }
-
+    } 
+    
     next(error)
+    response.send({error: error.message})
 }
 
 app.use(errorHandler)
